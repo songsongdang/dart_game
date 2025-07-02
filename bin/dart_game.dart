@@ -67,7 +67,6 @@ class Monster extends Unit {
   void setRandomAttack(int minDefense) {
     int range = maxAttack - minDefense + 1;
     if (range <= 0) {
-      // 방어력이 너무 높을 때는 최소값 사용
       attack = minDefense;
     } else {
       attack = minDefense + Random().nextInt(range);
@@ -97,6 +96,7 @@ class Game {
   late Character currentCharacter; // 현재 전투 중인 캐릭터
   late List<Monster> monsters;
   int monstersDefeated = 0;
+  String? gameResult; // "승리" 또는 "패배"
 
   void startGame() {
     print('==== 파티 RPG 게임을 시작합니다 ====');
@@ -104,7 +104,6 @@ class Game {
     loadMonsters();
 
     while (party.any((c) => c.isAlive) && monsters.isNotEmpty) {
-      // 무작위 이벤트 발생 (전투에 나설 캐릭터 기준)
       triggerRandomEvent();
 
       currentCharacter = getFirstAliveCharacter();
@@ -134,14 +133,13 @@ class Game {
           currentCharacter.useItem();
           currentCharacter.attackMonster(monster);
         } else if (action == 4) {
-          // 동료 교체
           if (party.where((c) => c.isAlive && c != currentCharacter).isEmpty) {
             print('교체할 수 있는 동료가 없습니다.');
             continue;
           }
           currentCharacter = chooseAlly();
           print('동료 ${currentCharacter.name}(으)로 교체되었습니다!');
-          continue; // 교체 시 턴 소모 없이 다시 행동 선택
+          continue;
         }
 
         monster.setRandomAttack(currentCharacter.defense);
@@ -166,6 +164,8 @@ class Game {
             currentCharacter = chooseAlly();
           } else {
             print('파티 전원이 쓰러졌습니다. 게임 오버!');
+            gameResult = "패배";
+            saveResultAndExit();
             return;
           }
         }
@@ -176,10 +176,14 @@ class Game {
 
           if (monsters.isEmpty) {
             print('\n축하합니다! 모든 몬스터를 물리쳤습니다!');
+            gameResult = "승리";
+            saveResultAndExit();
             return;
           } else {
             if (!askNextBattle()) {
               print('게임을 종료합니다.');
+              gameResult = "패배";
+              saveResultAndExit();
               return;
             }
             break;
@@ -362,6 +366,36 @@ class Game {
       if (input.toLowerCase() == 'n') return false;
       print('y 또는 n만 입력하세요.');
     }
+  }
+
+  void saveResultAndExit() {
+    while (true) {
+      stdout.write('결과를 저장하시겠습니까? (y/n): ');
+      String? input = stdin.readLineSync();
+      if (input == null) continue;
+      if (input.toLowerCase() == 'y') {
+        try {
+          final file = File('result.txt');
+          for (var c in party) {
+            file.writeAsStringSync(
+              '${c.name},${c.health},$gameResult\n',
+              mode: FileMode.append,
+            );
+          }
+          print('결과가 저장되었습니다.');
+        } catch (e) {
+          print('결과 저장에 실패했습니다: $e');
+        }
+        break;
+      } else if (input.toLowerCase() == 'n') {
+        print('결과를 저장하지 않습니다.');
+        break;
+      } else {
+        print('y 또는 n만 입력하세요.');
+      }
+    }
+    print('게임을 종료합니다.');
+    exit(0);
   }
 }
 

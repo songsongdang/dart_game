@@ -253,7 +253,7 @@ class Game {
   void loadParty() {
     party = [];
     print('캐릭터를 1명 생성합니다.');
-    print('\n캐릭터 이름을 입력하세요(한글/영문만):');
+    print('\n캐릭터 이름을 입력하세요(영문만 입력 가능');
     String name = getCharacterName();
 
     // 능력치 랜덤 배정 (조정된 범위)

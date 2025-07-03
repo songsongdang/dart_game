@@ -1,3 +1,5 @@
-Thanos,30,20
-Kang the conqueror,20,30
-Dr.Doom,30,10
+Thanos
+Kang the conqueror
+Dr.Doom
+Demon
+Fireguy

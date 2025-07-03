@@ -1,6 +1,0 @@
-Batman,50,패배song,21,승리
-sno,48,승리
-dang,30,승리
-show,20,승리
-song,93,승리
-dagn,50,승리
